@@ -1,4 +1,8 @@
-Instructions:
+### You can check the CLI_demo.gif and unit_test_demo.gif in the demo folder to have a quick overview of the ticket viewer system
 
-To use the ticket system CLI, download and run the ticketViewer.java file. 
-To run unit tests, download and run the ticketTest.java file.
+## Instructions:
+
+To use the the ticket viewer CLI, download and run the file: ZendeskTicketViewer/src/ticketviewer/ticketViewer.java
+
+To run unit tests, download and run the file: ZendeskTicketViewer/src/test/ticketTest.java 
+
