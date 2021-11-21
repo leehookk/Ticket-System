@@ -35,7 +35,7 @@ class ticketTest {
 			e.printStackTrace();
 		}
 
-		String credentials = ("hal080@ucsd.edu" + ":" + "password");
+		String credentials = ({username} + ":" + {password});
 
 		String encodeBytes = Base64.getEncoder().encodeToString((credentials).getBytes());
 
