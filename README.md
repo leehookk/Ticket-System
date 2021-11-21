@@ -2,7 +2,7 @@
 
 ## Instructions:
 
-To use the the ticket viewer CLI, download and run the file: ZendeskTicketViewer/src/ticketviewer/ticketViewer.java
+To use the the ticket viewer CLI, run the file: ZendeskTicketViewer/src/ticketviewer/ticketViewer.java
 
-To run unit tests, download and run the file: ZendeskTicketViewer/src/test/ticketTest.java 
+To run unit tests, run the file: ZendeskTicketViewer/src/test/ticketTest.java 
 
