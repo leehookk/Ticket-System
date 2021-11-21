@@ -13,24 +13,26 @@ import java.util.List;
 import com.google.gson.Gson;
 
 public class ticketViewer {
+	public static Ticket ticket;
+	public static String username;
+	public static String password;
+	public static List<Ticket> allTickets;
+	public static String credentials;
 
 	private static HttpURLConnection connection;
 
-	public static void main(String[] args) {
-
-		apiConnect();
-
+	// Establishes connection with Zendesk API and runs
+	public ticketViewer(String username, String password){
+		this.username=username;
+		this.password=password;
 	}
 
-	// Establishes connection with Zendesk API and runs
-	public static void apiConnect() {
-
+	public static Ticket connectApi(String credentials){
+		Ticket ticket=null;
 		try {
 			// Url connection to grab tickets
 			URL url = new URL("https://zcchal080ucsd.zendesk.com/api/v2/tickets.json/");
 			connection = (HttpURLConnection) url.openConnection();
-
-			String credentials = ("hal080@ucsd.edu" + ":" + "password");
 			// Encoding into base64 credentials for header to accept
 			String encodeBytes = Base64.getEncoder().encodeToString((credentials).getBytes());
 
@@ -40,47 +42,13 @@ public class ticketViewer {
 			InputStreamReader inputReader = new InputStreamReader(connection.getInputStream());
 			BufferedReader bReader = new BufferedReader(inputReader);
 			int status = connection.getResponseCode();
-
-			// If we get status code 200, successfully connect
 			if (status == connection.HTTP_OK) {
-
 				Gson gson = new Gson();
 				BufferedReader br = null;
 				br = new BufferedReader(inputReader);
 				//ticket is a single ticket object
-				Ticket ticket = gson.fromJson(br, Ticket.class);
-				String userChoice = "";
-
-				// Main area: Where user chooses options
-				while (!userChoice.equalsIgnoreCase("quit")) {
-
-					// Calls for user input in Interface method
-					userChoice = Interface();
-
-					switch (userChoice) {
-					//view all tickets
-					case "1":
-						requestAll(ticket);
-						break;
-					//view a specific ticket
-					case "2":
-						requestOne(ticket);
-						break;
-					//quit
-					case "quit":
-						break;
-
-					default:
-						System.out.println("Please input either: '1' , '2' , or 'q'  ");
-						System.out.println("\n" + "\n");
-						break;
-
-					}
-				}
-				System.out.println("Thanks for using the viewer. Goodbye.");
-
+				ticket = gson.fromJson(br, Ticket.class);
 			}
-			// Exception handling
 			else if (status == connection.HTTP_BAD_REQUEST) {
 				System.out.println("The URL does not exist");
 				throw new RuntimeException("HttpResponseCode: " + status);
@@ -96,40 +64,86 @@ public class ticketViewer {
 			}
 
 			bReader.close();
-		} catch (MalformedURLException e) {
+		}
+		catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		return ticket;
 	}
 
+	public static void route(Ticket ticket){
+		if (ticket==null) {
+			System.out.println("Cannot connect to the API");
+			return;
+		}
+		String userChoice = "";
+
+		// Main area: Where user chooses options
+		while (!userChoice.equalsIgnoreCase("quit")) {
+
+			// Calls for user input in Interface method
+			userChoice = Menu();
+
+			switch (userChoice) {
+				//view all tickets
+				case "1":
+					requestAllTickets(ticket);
+					break;
+				//view a specific ticket
+				case "2":
+					requestOneTicket(ticket);
+					break;
+				//quit
+				case "quit":
+					break;
+
+				default:
+					System.out.println("Please input either: '1' , '2' , or 'q'  ");
+					System.out.println("\n" + "\n");
+					break;
+
+			}
+		}
+		System.out.println("Thanks for using the viewer. Goodbye.");
+	}
+
+	public static List<Ticket> getTicketDatabase(Ticket ticket){
+		List<Ticket> tickets=null;
+		if (ticket==null){
+			System.out.println("error, something wrong with the api connect!");
+		}
+		else{
+			tickets=allTickets=ticket.getTickets();
+		}
+		return tickets;
+	}
+
+
+
 	// Prints out 25 tickets each request
-	public static void requestAll(Ticket ticket) {
+	public static void requestAllTickets(Ticket ticket) {
+		allTickets=getTicketDatabase(ticket);
+		if (allTickets==null) return;
 		Scanner scan = new Scanner(System.in);
 		int input = 0;
 		try {
-			if (ticket != null) {
-				for (Ticket t : ticket.getTickets()) {
-
-					System.out.println(t.toString());
-
-					if (t.getId() % 25 == 0) {
-						System.out.println("--------------------------------------");
-						System.out.println("\n" + "\n");
-						System.out.println("If you want to view next 25 tickets, please type '1' ");
-						System.out.println("If you want to return to the main Menu, please type 2");
-						System.out.println(" ");
-						input = scan.nextInt();
-
-						if (input == 2) {
-							break;
-						}
-						if (input == 1) {
-
-						}
+			for (Ticket t : allTickets) {
+				System.out.println(t.toString());
+				if (t.getId() % 25 == 0) {
+					System.out.println("--------------------------------------");
+					System.out.println("\n" + "\n");
+					System.out.println("If you want to view next 25 tickets, please type '1' ");
+					System.out.println("If you want to return to the main Menu, please type 2");
+					System.out.println(" ");
+					input = scan.nextInt();
+					if (input == 2) {
+						break;
 					}
+					if (input == 1) {
 
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -138,8 +152,20 @@ public class ticketViewer {
 
 	}
 
-	// Main menu Interface: Grabs user input
-	public static String Interface() {
+	public static String authenticate(){
+		Scanner au = new Scanner(System.in);
+		String input1 = "";
+		String input2 = "";
+		System.out.println("please type your username: ");
+		input1 = au.next();
+		System.out.println("please type your password: ");
+		input2=au.next();
+		credentials=input1+":"+input2;
+		return credentials;
+	}
+
+	//menu page
+	public static String Menu() {
 
 		Scanner kb = new Scanner(System.in);
 		String input = "";
@@ -152,9 +178,8 @@ public class ticketViewer {
 
 		return input;
 	}
-
-	// Displays one individual ticket via id
-	public static void requestOne(Ticket ticket) {
+	//request for the detail of a single ticket
+	public static void requestOneTicket(Ticket ticket) {
 
 		Scanner scanId = new Scanner(System.in);
 
@@ -175,6 +200,11 @@ public class ticketViewer {
 			e.printStackTrace();
 		}
 
+	}
+
+	public static void main(String[] args) {
+		credentials = authenticate();
+		route(connectApi(credentials));
 	}
 
 }
