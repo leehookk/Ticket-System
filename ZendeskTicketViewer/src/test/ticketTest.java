@@ -56,8 +56,8 @@ class ticketTest {
 	//test if the request for all the tickets in account is successful
 	@org.junit.jupiter.api.Test
 	void testLoadAllTickets() {
-		String user="hal080@ucsd.edu";
-		String psw="password";
+		String user={username};//please replace {username} with my zendesk username here
+		String psw={password};//please replace {password} with my zendesk password here
 		String credientials=user+ ":"+psw;
 		ticketViewer test = new ticketViewer(user,psw);
 		Ticket ticket=test.connectApi(credientials);
